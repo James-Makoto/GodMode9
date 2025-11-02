@@ -70,6 +70,7 @@ end
 
 if find 0:/apps
     rm -o -s 0:/apps
+end
 
 set PREVIEW_MODE "V:/TextBox_Script/backup_nand_tip.png"     #nand备份询问
 if not ask "Do You Want To Backup NAND First?"
