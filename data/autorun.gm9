@@ -590,7 +590,7 @@ goto Start
 @Others_JP_Delete_Installer
 set PREVIEW_MODE "G:/TextBox_Package/delete_package_tip.png"
 if ask "Sure?"
-imgumount 0:/os_chn.pak
+imgumount
 rm -o -s 0:/os_chn.pak
 rm -o -s 0:/os_chn.pak.sha
 rm -o -s 0:/luma/payloads/Chinese_System_Installer.firm
