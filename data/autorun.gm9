@@ -157,13 +157,15 @@ elif find 1:/title/00040010/00022000 NULL
     find 1:/title/00040030/00009802/content/*.app ORIGAPP
 end
 
-encrypt "G:/Resources/HomeMenu_edited.cia"
-imgmount "G:/Resources/HomeMenu_edited.cia"
+cp -n -w "G:/Resources/HomeMenu_edited.cia" "0:/"
+encrypt "0:/HomeMenu_edited.cia"
+imgmount "0:/HomeMenu_edited.cia"
 find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
 imgmount PAKFILE
+rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/sys_install_success.png"     #安装中文补丁到真实系统完成
 echo "Install to SysNAND succeed!"
@@ -194,13 +196,15 @@ elif find 4:/title/00040010/00022000 NULL
     find 4:/title/00040030/00009802/content/*.app ORIGAPP
 end
 
-encrypt "G:/Resources/HomeMenu_edited.cia"
-imgmount "G:/Resources/HomeMenu_edited.cia"
+cp -n -w "G:/Resources/HomeMenu_edited.cia" "0:/"
+encrypt "0:/HomeMenu_edited.cia"
+imgmount "0:/HomeMenu_edited.cia"
 find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
-cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
 imgmount PAKFILE
+rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/emu_install_success.png"     #安装中文补丁到虚拟系统完成
 echo "Install to EmuNAND succeed!"
