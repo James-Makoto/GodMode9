@@ -164,7 +164,7 @@ find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
-imgmount PAKFILE
+imgmount 0:/os_chn.pak
 rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/sys_install_success.png"     #安装中文补丁到真实系统完成
@@ -203,7 +203,7 @@ find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
-imgmount PAKFILE
+imgmount 0:/os_chn.pak
 rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/emu_install_success.png"     #安装中文补丁到虚拟系统完成
