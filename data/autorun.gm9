@@ -66,9 +66,7 @@ if find 1:/BackupSysNAND APPSBACKUPSYS
 elif find 4:/BackupEmuNAND APPSBACKUPEMU
     cp -n -w 4:/BackupEmuNAND 0:/BackupEmuNAND
     rm -o -s 4:/BackupEmuNAND
-end
-
-if find 0:/apps
+elif find 0:/apps NULL
     rm -o -s 0:/apps
 end
 
