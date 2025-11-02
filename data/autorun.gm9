@@ -9,11 +9,17 @@ allow -a 1:/
 
 set PREVIEW_MODE "V:/TextBox_Script/chinese_system_installer.png"    #logo图
 
-set APPS "0:/apps"
-if findnot $[APPS] NULL
+set PAKFILE 0:/os_chn.pak
+if findnot $[PAKFILE] NULL
     set PREVIEW_MODE "V:/TextBox_Script/no_package.png"     #没有数据包提示
     echo "Resource Package not found!"
     poweroff
+elif not sha $[PAKFILE] $[PAKFILE].sha
+    set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
+    echo "Resource Package Corrupted!"
+    poweroff
+else
+    imgmount PAKFILE
 end
 
 if chk $[ONTYPE] "N3DS"
@@ -26,26 +32,26 @@ else
     poweroff
 end
 
-if find 1:/title/00040010/00020000 NULL
-    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00020000"
+if find 1:/title/00040010/00020000 NULL  #设定真实系统的识别区域
+    set SYSCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00020000"
 elif find 1:/title/00040010/00021000 NULL
-    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00021000"
+    set SYSCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00021000"
 elif find 1:/title/00040010/00022000 NULL
-    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00022000"
+    set SYSCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00022000"
 else
     set PREVIEW_MODE "V:/TextBox_Script/Region_error.png"     #不支持的区域
     echo "Your Console's region not supported!"
     poweroff
 end
 
-if find 4:/title/00040010/00020000 NULL
-    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00020000"
+if find 4:/title/00040010/00020000 NULL #设定虚拟系统的识别区域
+    set EMUCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00020000"
 elif find 4:/title/00040010/00021000 NULL
-    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00021000"
+    set EMUCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00021000"
 elif find 4:/title/00040010/00022000 NULL
-    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00022000"
+    set EMUCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/00022000"
 else
-    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/114514"
+    set EMUCHECKFILE "G:/Resources/$[ONTYPES]/CTR/title/00040010/114514"
 end
 
 if find 1:/BackupSysNAND APPSBACKUPSYS
@@ -55,6 +61,9 @@ elif find 4:/BackupEmuNAND APPSBACKUPEMU
     cp -n -w 4:/BackupEmuNAND 0:/BackupEmuNAND
     rm -o -s 4:/BackupEmuNAND
 end
+
+if find 0:/apps
+    rm -o -s 0:/apps
 
 set PREVIEW_MODE "V:/TextBox_Script/backup_nand_tip.png"     #nand备份询问
 if not ask "Do You Want To Backup NAND First?"
@@ -81,7 +90,7 @@ if ask "Create a SysNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand.bin OUTPATH
     cp -h -n -w S:/nand_minsize.bin $[OUTPATH]
     set PREVIEW_MODE "V:/TextBox_Script/backup_nand_sys_success.png"     #sysnand备份完成提示
-    echo "Backup created succesfully:\n$[OUTPATH]"
+    echo "Backup created success:\n$[OUTPATH]"
     goto Start
 else
 	goto Start
@@ -101,12 +110,12 @@ else
 end
 
 @Start
-set PREVIEW_MODE "V:/homepage.png" #菜单中文介绍
+set PREVIEW_MODE "G:/TextBox_Package/homepage.png" #菜单中文介绍
 labelsel -o -s "Chinese System Installer\nWhat Do You Want To Do?" Selwork_*
 goto Exit
 
 @Selwork_Install_SC/TC
-set PREVIEW_MODE "V:/chinese_insatll.png" #安装中文补丁标题
+set PREVIEW_MODE "G:/TextBox_Package/chinese_install.png" #安装中文补丁标题
 if findnot E:/nand.bin NULL
 goto Install_to_SysNAND
 else
@@ -118,19 +127,19 @@ end
 @Install_to_SysNAND
 
 if findnot $[SYSCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
     echo "Resource package region not matched!"
     goto Start
 end
 
-set PREVIEW_MODE "V:/sys_insatll.png"     #安装中文补丁到真实系统
+set PREVIEW_MODE "G:/TextBox_Package/sys_install.png"     #安装中文补丁到真实系统
 if findnot 0:/BackupSysNAND/title NULL
     cp -n -w 1:/title 0:/BackupSysNAND/title
 end
 
-cp -n -w "$[APPS]/$[ONTYPES]/CTR/title" "1:/title"
-cp -n -w "$[APPS]/$[ONTYPES]/TWL/title" "2:/title"
-cp -n -w "$[APPS]/luma" "0:/luma"
+cp -n -w "G:/Resources/$[ONTYPES]/CTR/title" "1:/title"
+cp -n -w "G:/Resources/$[ONTYPES]/TWL/title" "2:/title"
+cp -n -w "G:/Resources/luma" "0:/luma"
 
 if find 1:/title/00040010/00020000 NULL
     find 1:/title/00040030/00008202/content/*.app ORIGAPP
@@ -140,22 +149,23 @@ elif find 1:/title/00040010/00022000 NULL
     find 1:/title/00040030/00009802/content/*.app ORIGAPP
 end
 
-encrypt "$[APPS]/HomeMenu_edited.cia"
-imgmount "$[APPS]/HomeMenu_edited.cia"
+encrypt "G:/Resources/HomeMenu_edited.cia"
+imgmount "G:/Resources/HomeMenu_edited.cia"
 find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
+imgmount PAKFILE
 
-set PREVIEW_MODE "V:/sys_insatll_succesfully.png"     #安装中文补丁到真实系统完成
+set PREVIEW_MODE "G:/TextBox_Package/sys_install_success.png"     #安装中文补丁到真实系统完成
 echo "Install to SysNAND succeed!"
 goto Start
 
 @Install_to_EmuNAND
-set PREVIEW_MODE "V:/emu_insatll.png"     #安装中文补丁到虚拟系统
+set PREVIEW_MODE "G:/TextBox_Package/emu_install.png"     #安装中文补丁到虚拟系统
 
 if findnot $[EMUCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
     echo "Resource package region not matched!"
     goto Start
 end
@@ -164,9 +174,9 @@ if find 0:/BackupEmuNAND/title APPSTITLE
     cp -n -w 4:/title 0:/BackupEmuNAND/title
 end
 
-cp -n -w "$[APPS]/$[ONTYPES]/CTR/title" "4:/title"
-cp -n -w "$[APPS]/$[ONTYPES]/TWL/title" "5:/title"
-cp -n -w "$[APPS]/luma" "0:/luma"
+cp -n -w "G:/Resources/$[ONTYPES]/CTR/title" "4:/title"
+cp -n -w "G:/Resources/$[ONTYPES]/TWL/title" "5:/title"
+cp -n -w "G:/Resources/luma" "0:/luma"
 
 if find 4:/title/00040010/00020000 NULL
     find 4:/title/00040030/00008202/content/*.app ORIGAPP
@@ -176,14 +186,15 @@ elif find 4:/title/00040010/00022000 NULL
     find 4:/title/00040030/00009802/content/*.app ORIGAPP
 end
 
-encrypt "$[APPS]/HomeMenu_edited.cia"
-imgmount "$[APPS]/HomeMenu_edited.cia"
+encrypt "G:/Resources/HomeMenu_edited.cia"
+imgmount "G:/Resources/HomeMenu_edited.cia"
 find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
+imgmount PAKFILE
 
-set PREVIEW_MODE "V:/emu_insatll_succesfully.png"     #安装中文补丁到虚拟系统完成
+set PREVIEW_MODE "G:/TextBox_Package/emu_install_success.png"     #安装中文补丁到虚拟系统完成
 echo "Install to EmuNAND succeed!"
 goto Start
 
@@ -198,13 +209,13 @@ end
 
 @Uninstall_SysNAND
 if findnot 0:/BackupSysNAND/title BACKUPSYS
-    set PREVIEW_MODE "V:/not_title_backup.png"     #找不到备份文件
+    set PREVIEW_MODE "G:/TextBox_Package/no_title_backup.png"     #找不到备份文件
     echo "Backup not found!"
     goto Start
 	end
-set PREVIEW_MODE "V:/chinese_uninsatll_sysnand_tip.png" #卸载真实系统汉化标题询问
+set PREVIEW_MODE "G:/TextBox_Package/chinese_uninstall_sysnand_tip.png" #卸载真实系统汉化标题询问
 if ask "Sure?"
-    set PREVIEW_MODE "V:/chinese_uninsatll_sysnand.png" #卸载真实系统汉化标题
+    set PREVIEW_MODE "G:/TextBox_Package/chinese_uninstall_sysnand.png" #卸载真实系统汉化标题
 else
     goto Start
 end
@@ -219,13 +230,13 @@ end
 
 @Uninstall_EmuNAND
 if findnot 0:/BackupEmuNAND/title BACKUPEMU
-    set PREVIEW_MODE "V:/not_title_backup.png"     #找不到备份文件
+    set PREVIEW_MODE "G:/TextBox_Package/no_title_backup.png"     #找不到备份文件
     echo "Backup not found!"
     goto Start
 end
-set PREVIEW_MODE "V:/chinese_uninsatll_emunand_tip.png" #卸载虚拟系统汉化标题询问
+set PREVIEW_MODE "G:/TextBox_Package/chinese_uninstall_emunand_tip.png" #卸载虚拟系统汉化标题询问
 if ask "Sure?"
-    set PREVIEW_MODE "V:/chinese_uninsatll_emunand.png" #卸载虚拟系统汉化标题
+    set PREVIEW_MODE "G:/TextBox_Package/chinese_uninstall_emunand.png" #卸载虚拟系统汉化标题
 else
     goto Start
 end
@@ -284,19 +295,19 @@ goto Start
 
 
 
-@Selwork_Other_Functions
+@Selwork_Others
 if find 1:/title/00040010/00020000 NULL
-set PREVIEW_MODE "V:/extra_tool_jp.png"     #日版更多工具说明
-labelsel -o -s "Other_Functions What Do You Want To Do?" Other_Functions_Jp_*
+set PREVIEW_MODE "G:/TextBox_Package/extra_tool_jp.png"     #日版更多工具说明
+labelsel -o -s "Choose you want in Others." Others_JP_*
 goto Start
 else
-set PREVIEW_MODE "V:/extra_tool_ue.png"     #美欧更多工具说明
-labelsel -o -s "Other_Functions What Do You Want To Do?" Other_Functions_Ue_*
+set PREVIEW_MODE "G:/TextBox_Package/extra_tool_ue.png"     #美欧更多工具说明
+labelsel -o -s "Choose you want in Others." Others_UE_*
 goto Start
 end
 
-@Other_Functions_Jp_Clear_HOME_Menu_Caches
-set PREVIEW_MODE "V:/clear_homemenu_caches.png"     #清理桌面缓存
+@Others_JP_Clear_HOME_Menu_Caches
+set PREVIEW_MODE "G:/TextBox_Package/clear_homemenu_caches.png"     #清理桌面缓存
 if findnot E:/nand.bin NULL
 goto Clear_HOME_Menu_Caches_SysNAND
 else
@@ -321,13 +332,13 @@ else
 goto Start
 end
 
-@Other_Functions_Jp_Keyboard_Change
-set PREVIEW_MODE "V:/extra_tool_jp.png"
+@Others_JP_Keyboard_Change
+set PREVIEW_MODE "G:/TextBox_Package/extra_tool_jp.png"
 labelsel -o -s "Select the language." Keyboard_Change_*
-goto Selwork_Other_Functions
+goto Selwork_Others
 
 @Keyboard_Change_Simplified_Chinese
-set PREVIEW_MODE "V:/simplified_chinese.png"     #拼音输入法
+set PREVIEW_MODE "G:/TextBox_Package/simplified_chinese.png"     #拼音输入法
 if findnot E:/nand.bin NULL
 goto Simplified_Chinese_SysNAND
 else
@@ -337,7 +348,7 @@ goto Start
 end
 
 @Keyboard_Change_Japanese
-set PREVIEW_MODE "V:/Japanese.png"     #日文输入法
+set PREVIEW_MODE "G:/TextBox_Package/Japanese.png"     #日文输入法
 if findnot E:/nand.bin NULL
 goto Japanese_SysNAND
 else
@@ -349,7 +360,7 @@ end
 @Simplified_Chinese_SysNAND
 
 if findnot $[SYSCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
     echo "Resource package region not matched!"
     goto Start
 end
@@ -360,7 +371,7 @@ goto Start
 @Simplified_Chinese_EmuNAND
 
 if findnot $[EMUCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
     echo "Resource package region not matched!"
     goto Start
 end
@@ -371,7 +382,7 @@ goto Start
 @Japanese_SysNAND
 
 if findnot $[SYSCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
     echo "Resource package region not matched!"
     goto Start
 end
@@ -382,7 +393,7 @@ goto Start
 @Japanese_EmuNAND
 
 if findnot $[EMUCHECKFILE] NULL
-    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
     echo "Resource package region not matched!"
     goto Start
 end
@@ -390,50 +401,50 @@ end
 cp -w -s -n 0:/apps/Jap_input/title 4:/title
 goto Start
 
-@Other_Functions_Jp_Kanji_Luma_Patch
-set PREVIEW_MODE "V:/kanji_luma_patch.png"
+@Others_JP_Kanji_Luma_Patch
+set PREVIEW_MODE "G:/TextBox_Package/kanji_luma_patch.png"
 labelsel -o -s "Install or Uninstall?" Kanji_Luma_Patch_*
-goto Selwork_Other_Functions
+goto Selwork_Others
 
-@Other_Functions_Jp_Filtering_Disabler
+@Others_JP_Filtering_Disabler
 
 set SAVE_PATH 1:/data/$[SYSID0]/sysdata/000200bb/00000000
 
 if chk $[ONTYPE] O3DS
-    set PREVIEW_MODE "V:/filter_o3ds_error.png"     #老三不支持提示
+    set PREVIEW_MODE "G:/TextBox_Package/filter_o3ds_error.png"     #老三不支持提示
     echo "Old3DS are not supported."
 	goto FAIL
 end
 if not chk $[REGION] JPN
-    set PREVIEW_MODE "V:/unknown_error.png"     #未知错误
+    set PREVIEW_MODE "G:/TextBox_Package/unknown_error.png"     #未知错误
     echo "Non-JPN region detected."
 	goto FAIL
 end
 if not find $[SAVE_PATH] NULL
-    set PREVIEW_MODE "V:/filter_savedata_error.png"     #找不到滤镜数据提示
+    set PREVIEW_MODE "G:/TextBox_Package/filter_savedata_error.png"     #找不到滤镜数据提示
     echo "Browser's savedata not found."
 	goto FAIL
 end
 imgumount
 if not imgmount $[SAVE_PATH]
-    set PREVIEW_MODE "V:/filter_mount_error.png"     #镜像失败提示
+    set PREVIEW_MODE "G:/TextBox_Package/filter_mount_error.png"     #镜像失败提示
     echo "Failed to mount."
 	goto FAIL
 end
 
 fget D:/partitionA.bin@3090:1 FILTERING_DISABLED_VALUE
 if chk $[FILTERING_DISABLED_VALUE] 00 #滤镜已开启
-    set PREVIEW_MODE "V:/filter_disable_confirm.png"     #滤镜关闭确认
+    set PREVIEW_MODE "G:/TextBox_Package/filter_disable_confirm.png"     #滤镜关闭确认
 	set ASK_SENTENCE "Filter is currently enabled\n \nDo you want to disable it?"
 	set SUCCESSMSG "Succeed to disable filter."
 	set WRITE_VALUE 01
 elif chk $[FILTERING_DISABLED_VALUE] 01 #滤镜已关闭
-    set PREVIEW_MODE "V:/filter_enable_confirm.png"     #滤镜开启确认
+    set PREVIEW_MODE "G:/TextBox_Package/filter_enable_confirm.png"     #滤镜开启确认
 	set ASK_SENTENCE "Filter is currently disabled\n \nDo you want to enable it?"
 	set SUCCESSMSG "Succeed to enable filter."
 	set WRITE_VALUE 00
 else
-    set PREVIEW_MODE "V:/unknown_error.png"     #未知错误
+    set PREVIEW_MODE "G:/TextBox_Package/unknown_error.png"     #未知错误
 	echo "Invalid browser savedata\n0x3090:"$[FILTERING_DISABLED_VALUE]
 	goto FAIL
 end
@@ -459,7 +470,7 @@ imgumount
 goto Start
 
 @Kanji_Luma_Patch_Install
-set PREVIEW_MODE "V:/kanji_luma_patch_install_tip.png"
+set PREVIEW_MODE "G:/TextBox_Package/kanji_luma_patch_install_tip.png"
 if ask "Sure?"
     cp -w -n 0:/apps/Kanji_Luma_Patch/luma 0:/luma
 else
@@ -468,7 +479,7 @@ end
 goto Start
 
 @Kanji_Luma_Patch_Uninstall
-set PREVIEW_MODE "V:/kanji_luma_patch_uninstall_tip.png"
+set PREVIEW_MODE "G:/TextBox_Package/kanji_luma_patch_uninstall_tip.png"
 if ask "Sure?"
     rm -o -s 0:/luma/titles/000400100002BF00
     rm -o -s 0:/luma/titles/0004000000056C00
@@ -492,8 +503,8 @@ else
 end
 goto Start
 
-@Other_Functions_Jp_Fonts_Change
-set PREVIEW_MODE "V:/font_change.png"
+@Others_JP_Fonts_Change
+set PREVIEW_MODE "G:/TextBox_Package/font_change.png"
 labelsel -o -s "Select the fonts ." Fonts_*
 goto Start
 
@@ -547,7 +558,7 @@ goto Start
 end
 
 @Inject_SysNand
-set PREVIEW_MODE "V:/tip.png"
+set PREVIEW_MODE "G:/TextBox_Package/tip.png"
 if not ask "About to inject fonts, Do you want to continue?"
 goto Start
 end
@@ -556,7 +567,7 @@ cp -n -w $[FONTS] "1:/title"
 goto Start
 
 @Inject_EmuNand
-set PREVIEW_MODE "V:/tip.png"
+set PREVIEW_MODE "G:/TextBox_Package/tip.png"
 if not ask "About to inject fonts, Do you want to continue?"
 goto Start
 end
@@ -564,27 +575,28 @@ set PREVIEW_MODE "Loading......"
 cp -n -w $[FONTS] "4:/title"
 goto Start
 
-@Other_Functions_Jp_Delect_Apps
-set PREVIEW_MODE "V:/delect_apps_tip.png"
+@Others_JP_Delete_Apps
+set PREVIEW_MODE "G:/TextBox_Package/delete_package_tip.png"
 if ask "Sure?"
-rm -o -s 0:/apps
+rm -o -s PAKFILE
 rm -o -s 0:/luma/payloads/Chinese_System_Installer.firm
+rm -o -s 0:/gm9/scripts/Chinese_System_Installer.gm9
 poweroff
 else
 goto Start
 end
 
-@Other_Functions_Jp_Delect_Backup
-set PREVIEW_MODE "V:/delete_backup_tip.png"	#删除备份title
+@Others_JP_Delete_Backup
+set PREVIEW_MODE "G:/TextBox_Package/delete_backup_tip.png"	#删除备份title
 if findnot 0:/BackupEmuNAND NULL
-goto Delect_Backup_SysNAND
+goto Delete_Backup_SysNAND
 else
 set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
-labelsel -o -s "Select NAND partition ." Delect_Backup_*
+labelsel -o -s "Select NAND partition ." Delete_Backup_*
 goto Start
 end
 
-@Delect_Backup_SysNAND
+@Delete_Backup_SysNAND
 if ask "Sure?"
 rm -o -s 0:/BackupSysNAND
 poweroff
@@ -592,24 +604,24 @@ else
 goto Start
 end
 
-@Delect_Backup_EmuNAND
+@Delete_Backup_EmuNAND
 rm -o -s 0:/BackupEmuNAND
 poweroff
 else
 goto Start
 end
 
-@Other_Functions_Ue_Fonts_Change
-goto Other_Functions_Jp_Fonts_Change
+@Others_UE_Fonts_Change
+goto Others_JP_Fonts_Change
 
-@Other_Functions_Ue_Delect_Apps
-goto Other_Functions_Jp_Delect_Apps
+@Others_UE_Delete_Apps
+goto Others_JP_Delete_Apps
 
-@Other_Functions_Ue_Delect_Backup
-goto Other_Functions_Jp_Delect_Backup
+@Others_UE_Delete_Backup
+goto Others_JP_Delete_Backup
 
 @Selwork_Credit
-set PREVIEW_MODE "V:/stuff.png"
+set PREVIEW_MODE "G:/TextBox_Package/stuff.png"
 echo "Chinese System Installer Credit \nFrom \n\nHaneu(haneu123): Developer\nheiyu04/Forget/Riikosiro(Rintim)"
 goto Start
 
