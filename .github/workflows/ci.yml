@@ -2,7 +2,8 @@ name: CI
 
 on: [push, pull_request]
 
-jobs:
+jobs:  
+  workflow_dispatch:
   build:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm
