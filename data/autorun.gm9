@@ -56,7 +56,7 @@ elif find 4:/BackupEmuNAND APPSBACKUPEMU
     rm -o -s 4:/BackupEmuNAND
 end
 
-set PREVIEW_MODE "V:/TextBox_Script/back_nand_tip.png"     #nand备份询问
+set PREVIEW_MODE "V:/TextBox_Script/backup_nand_tip.png"     #nand备份询问
 if not ask "Do You Want To Backup NAND First?"
     set PREVIEW_MODE "V:/TextBox_Script/chinese_system_installer.png"    #logo图
     goto Start
@@ -75,12 +75,12 @@ goto Start
 end
 
 @BACKUP_NAND_SysNAND
-set PREVIEW_MODE "V:/TextBox_Script/back_nand_sys_tip.png"     #sysnand备份提示
+set PREVIEW_MODE "V:/TextBox_Script/backup_nand_sys_tip.png"     #sysnand备份提示
 set ERRORMSG "SysNAND backup failed"
 if ask "Create a SysNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand.bin OUTPATH
     cp -h -n -w S:/nand_minsize.bin $[OUTPATH]
-    set PREVIEW_MODE "V:/TextBox_Script/back_nand_sys_success.png"     #sysnand备份完成提示
+    set PREVIEW_MODE "V:/TextBox_Script/backup_nand_sys_success.png"     #sysnand备份完成提示
     echo "Backup created succesfully:\n$[OUTPATH]"
     goto Start
 else
@@ -88,12 +88,12 @@ else
 end
 
 @BACKUP_NAND_EmuNAND
-set PREVIEW_MODE "V:/TextBox_Script/back_nand_emu_tip.png"     #emunand备份提示
+set PREVIEW_MODE "V:/TextBox_Script/backup_nand_emu_tip.png"     #emunand备份提示
 set ERRORMSG "EmuNAND backup failed"
 if ask "Create a EmuNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_emunand.bin OUTPATH
     cp -h -n -w E:/nand_minsize.bin $[OUTPATH]
-    set PREVIEW_MODE "V:/TextBox_Script/back_nand_emu_success.png"     #emunand备份完成提示
+    set PREVIEW_MODE "V:/TextBox_Script/backup_nand_emu_success.png"     #emunand备份完成提示
     echo "Backup created succesfully:\n$[OUTPATH]"
     goto Start
 else
