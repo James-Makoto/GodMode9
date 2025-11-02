@@ -14,12 +14,16 @@ if findnot $[PAKFILE] NULL
     set PREVIEW_MODE "V:/TextBox_Script/no_package.png"     #没有数据包提示
     echo "Resource Package not found!"
     poweroff
+elif find not $[PAKFILE].sha NULL
+    set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
+    echo "Resource Package Corrupted!"
+    poweroff
 elif not sha $[PAKFILE] $[PAKFILE].sha
     set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
     echo "Resource Package Corrupted!"
     poweroff
 else
-    imgmount PAKFILE
+    imgmount $[PAKFILE]
 end
 
 if chk $[ONTYPE] "N3DS"
