@@ -491,7 +491,7 @@ goto Selwork_Others
 set SAVE_PATH 1:/data/$[SYSID0]/sysdata/000200bb/00000000
 
 if chk $[ONTYPE] O3DS
-    set PREVIEW_MODE "G:/TextBox_Package/filter_o3ds_error.png"     #老三不支持提示
+    set PREVIEW_MODE "V:/TextBox_Script/filter_o3ds_error.png"     #老三不支持提示
     echo "Old3DS are not supported."
 	goto FAIL
 end
@@ -501,30 +501,30 @@ if not chk $[REGION] JPN
 	goto FAIL
 end
 if not find $[SAVE_PATH] NULL
-    set PREVIEW_MODE "G:/TextBox_Package/filter_savedata_error.png"     #找不到滤镜数据提示
+    set PREVIEW_MODE "V:/TextBox_Script/filter_savedata_error.png"     #找不到滤镜数据提示
     echo "Browser's savedata not found."
 	goto FAIL
 end
 imgumount
 if not imgmount $[SAVE_PATH]
-    set PREVIEW_MODE "G:/TextBox_Package/filter_mount_error.png"     #镜像失败提示
+    set PREVIEW_MODE "V:/TextBox_Script/filter_mount_error.png"     #镜像失败提示
     echo "Failed to mount."
 	goto FAIL
 end
 
 fget D:/partitionA.bin@3090:1 FILTERING_DISABLED_VALUE
 if chk $[FILTERING_DISABLED_VALUE] 00 #滤镜已开启
-    set PREVIEW_MODE "G:/TextBox_Package/filter_disable_confirm.png"     #滤镜关闭确认
+    set PREVIEW_MODE "V:/TextBox_Script/filter_disable_confirm.png"     #滤镜关闭确认
 	set ASK_SENTENCE "Filter is currently enabled\n \nDo you want to disable it?"
 	set SUCCESSMSG "Succeed to disable filter."
 	set WRITE_VALUE 01
 elif chk $[FILTERING_DISABLED_VALUE] 01 #滤镜已关闭
-    set PREVIEW_MODE "G:/TextBox_Package/filter_enable_confirm.png"     #滤镜开启确认
+    set PREVIEW_MODE "V:/TextBox_Script/filter_enable_confirm.png"     #滤镜开启确认
 	set ASK_SENTENCE "Filter is currently disabled\n \nDo you want to enable it?"
 	set SUCCESSMSG "Succeed to enable filter."
 	set WRITE_VALUE 00
 else
-    set PREVIEW_MODE "G:/TextBox_Package/unknown_error.png"     #未知错误
+    set PREVIEW_MODE "V:/TextBox_Script/unknown_error.png"     #未知错误
 	echo "Invalid browser savedata\n0x3090:"$[FILTERING_DISABLED_VALUE]
 	goto FAIL
 end
@@ -542,11 +542,13 @@ goto EXIT
 
 @FAIL
 imgumount
+imgmount $[PAKFILE]
 chk -s a b
 goto Start
 
 @EXIT
 imgumount
+imgmount $[PAKFILE]
 goto Start
 
 @Kanji_Luma_Patch_Install
