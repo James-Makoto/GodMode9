@@ -198,7 +198,7 @@ find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
-imgmount 0:/os_chn.pak
+imgmount $[PAKFILE]
 rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/sys_install_success.png"     #安装中文补丁到真实系统完成
@@ -271,7 +271,7 @@ find G:/*.app EDITAPP
 cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
 cp -k $[ORIGAPP] 4:/rw/originalhomemenu.app
 cp -w -n $[EDITAPP] $[ORIGAPP]
-imgmount 0:/os_chn.pak
+imgmount $[PAKFILE]
 rm -o -s 0:/HomeMenu_edited.cia
 
 set PREVIEW_MODE "G:/TextBox_Package/emu_install_success.png"     #安装中文补丁到虚拟系统完成
@@ -659,8 +659,8 @@ goto Start
 set PREVIEW_MODE "G:/TextBox_Package/delete_package_tip.png"
 if ask "Sure?"
 imgumount
-rm -o -s 0:/os_chn.pak
-rm -o -s 0:/os_chn.pak.sha
+rm -o -s $[PAKFILE]
+rm -o -s $[PAKFILE].sha
 rm -o -s 0:/luma/payloads/Chinese_System_Installer.firm
 rm -o -s 0:/gm9/scripts/Chinese_System_Installer.gm9
 poweroff
