@@ -6,7 +6,7 @@ rwildcard = $(foreach d, $(wildcard $1*), \
             $(filter $(subst *, %, $2), $d) \
             $(call rwildcard, $d/, $2))
 
-FLAVOR  ?=  Chinese_System_Installer
+FLAVOR  ?=  GodMode9
 SPLASH   =  resources/$(FLAVOR)_splash.png
 
 ifeq ($(FLAVOR),SafeMode9)
