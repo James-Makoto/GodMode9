@@ -140,6 +140,40 @@ if findnot $[SYSCHECKFILE] NULL
     poweroff
 end
 
+if find 1:/title/00040010/00020000 NULL  #检查系统组件文件夹是否异常堆叠
+    if find 1:/title/00040010/00021000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 1:/title/00040010/00022000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
+end
+if find 1:/title/00040010/00021000 NULL
+    if find 1:/title/00040010/00020000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 1:/title/00040010/00022000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
+end
+if find 1:/title/00040010/00022000 NULL
+    if find 1:/title/00040010/00020000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 1:/title/00040010/00021000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
+end
+
 set PREVIEW_MODE "G:/TextBox_Package/sys_install.png"     #安装中文补丁到真实系统
 if findnot 0:/BackupSysNAND/title NULL
     cp -n -w 1:/title 0:/BackupSysNAND/title
@@ -178,6 +212,40 @@ if findnot $[EMUCHECKFILE] NULL
     set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
     echo "Resource package region not matched!"
     poweroff
+end
+
+if find 4:/title/00040010/00020000 NULL  #检查系统组件文件夹是否异常堆叠
+    if find 4:/title/00040010/00021000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 4:/title/00040010/00022000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
+end
+if find 4:/title/00040010/00021000 NULL
+    if find 4:/title/00040010/00020000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 4:/title/00040010/00022000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
+end
+if find 4:/title/00040010/00022000 NULL
+    if find 4:/title/00040010/00020000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    elif find 4:/title/00040010/00021000 NULL
+        set PREVIEW_MODE "G:/TextBox_Package/CTRTransfer_needed.png"     #需要CTRTransfer提示
+        echo "You need CTRTransfer!"
+        poweroff
+    end
 end
 
 if find 0:/BackupEmuNAND/title APPSTITLE
