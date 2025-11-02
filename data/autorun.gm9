@@ -4,14 +4,14 @@
 # Content:	3DS Chinese System Installer
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-set PREVIEW_MODE "V:/permission_require.png"    #权限提示
+set PREVIEW_MODE "V:/TextBox_Script/permission_require.png"    #权限提示
 allow -a 1:/
 
-set PREVIEW_MODE "V:/chinese_system_installer.png"    #logo图
+set PREVIEW_MODE "V:/TextBox_Script/chinese_system_installer.png"    #logo图
 
 set APPS "0:/apps"
 if findnot $[APPS] NULL
-    set PREVIEW_MODE "V:/not_apps.png"     #没有apps文件夹提示
+    set PREVIEW_MODE "V:/TextBox_Script/no_package.png"     #没有数据包提示
     echo "Resource Package not found!"
     poweroff
 end
@@ -21,7 +21,7 @@ if chk $[ONTYPE] "N3DS"
 elif chk $[ONTYPE] "O3DS"
     set ONTYPES "Old3DS"
 else
-    set PREVIEW_MODE "V:/unknown_device.png"   #未知设备错误
+    set PREVIEW_MODE "V:/TextBox_Script/unknown_device.png"   #未知设备错误
     echo "Unknown device!"
     poweroff
 end
@@ -33,7 +33,7 @@ elif find 1:/title/00040010/00021000 NULL
 elif find 1:/title/00040010/00022000 NULL
     set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00022000"
 else
-    set PREVIEW_MODE "V:/Region_error.png"     #不支持的区域
+    set PREVIEW_MODE "V:/TextBox_Script/Region_error.png"     #不支持的区域
     echo "Your Console's region not supported!"
     poweroff
 end
@@ -56,31 +56,31 @@ elif find 4:/BackupEmuNAND APPSBACKUPEMU
     rm -o -s 4:/BackupEmuNAND
 end
 
-set PREVIEW_MODE "V:/back_nand_tip.png"     #nand备份询问
+set PREVIEW_MODE "V:/TextBox_Script/back_nand_tip.png"     #nand备份询问
 if not ask "Do You Want To Backup NAND First?"
-    set PREVIEW_MODE "V:/chinese_system_installer.png"    #logo图
+    set PREVIEW_MODE "V:/TextBox_Script/chinese_system_installer.png"    #logo图
     goto Start
 else
     goto BACKUP_NAND
 end
 
 @BACKUP_NAND
-set PREVIEW_MODE "V:/chinese_system_installer.png"     #logo图
+set PREVIEW_MODE "V:/TextBox_Script/chinese_system_installer.png"     #logo图
 if findnot E:/nand.bin NULL
 goto BACKUP_NAND_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition." BACKUP_NAND_*
 goto Start
 end
 
 @BACKUP_NAND_SysNAND
-set PREVIEW_MODE "V:/back_nand_sys_tip.png"     #sysnand备份提示
+set PREVIEW_MODE "V:/TextBox_Script/back_nand_sys_tip.png"     #sysnand备份提示
 set ERRORMSG "SysNAND backup failed"
 if ask "Create a SysNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand.bin OUTPATH
     cp -h -n -w S:/nand_minsize.bin $[OUTPATH]
-    set PREVIEW_MODE "V:/back_nand_sys_succesfully.png"     #sysnand备份完成提示
+    set PREVIEW_MODE "V:/TextBox_Script/back_nand_sys_success.png"     #sysnand备份完成提示
     echo "Backup created succesfully:\n$[OUTPATH]"
     goto Start
 else
@@ -88,12 +88,12 @@ else
 end
 
 @BACKUP_NAND_EmuNAND
-set PREVIEW_MODE "V:/back_nand_emu_tip.png"     #emunand备份提示
+set PREVIEW_MODE "V:/TextBox_Script/back_nand_emu_tip.png"     #emunand备份提示
 set ERRORMSG "EmuNAND backup failed"
 if ask "Create a EmuNAND backup in $[GM9OUT]?"
     findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_emunand.bin OUTPATH
     cp -h -n -w E:/nand_minsize.bin $[OUTPATH]
-    set PREVIEW_MODE "V:/back_nand_emu_succesfully.png"     #emunand备份完成提示
+    set PREVIEW_MODE "V:/TextBox_Script/back_nand_emu_success.png"     #emunand备份完成提示
     echo "Backup created succesfully:\n$[OUTPATH]"
     goto Start
 else
@@ -110,7 +110,7 @@ set PREVIEW_MODE "V:/chinese_insatll.png" #安装中文补丁标题
 if findnot E:/nand.bin NULL
 goto Install_to_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition ." Install_to_*
 goto Start
 end
@@ -191,7 +191,7 @@ goto Start
 if findnot E:/nand.bin NULL
     goto Uninstall_SysNAND
 else
-    set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+    set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
     labelsel -o -s "Select NAND partition." Uninstall_*
     goto Start
 end
@@ -300,7 +300,7 @@ set PREVIEW_MODE "V:/clear_homemenu_caches.png"     #清理桌面缓存
 if findnot E:/nand.bin NULL
 goto Clear_HOME_Menu_Caches_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition ." Clear_HOME_Menu_Caches_*
 goto Start
 end
@@ -331,7 +331,7 @@ set PREVIEW_MODE "V:/simplified_chinese.png"     #拼音输入法
 if findnot E:/nand.bin NULL
 goto Simplified_Chinese_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition ." Simplified_Chinese_*
 goto Start
 end
@@ -341,7 +341,7 @@ set PREVIEW_MODE "V:/Japanese.png"     #日文输入法
 if findnot E:/nand.bin NULL
 goto Japanese_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition ." Japanese_*
 goto Start
 end
@@ -541,7 +541,7 @@ goto Check_Nand
 if findnot E:/nand.bin NULL
 goto Inject_SysNand
 else
-set PREVIEW_MODE "V:/sel_nand.png"
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"
 labelsel -o -s "Select NAND partition ." Inject_*
 goto Start
 end
@@ -579,7 +579,7 @@ set PREVIEW_MODE "V:/delete_backup_tip.png"	#删除备份title
 if findnot 0:/BackupEmuNAND NULL
 goto Delect_Backup_SysNAND
 else
-set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+set PREVIEW_MODE "V:/TextBox_Script/sel_nand.png"     #nand说明
 labelsel -o -s "Select NAND partition ." Delect_Backup_*
 goto Start
 end
