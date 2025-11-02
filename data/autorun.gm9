@@ -587,10 +587,11 @@ set PREVIEW_MODE "Loading......"
 cp -n -w $[FONTS] "4:/title"
 goto Start
 
-@Others_JP_Delete_Apps
+@Others_JP_Delete_Installer
 set PREVIEW_MODE "G:/TextBox_Package/delete_package_tip.png"
 if ask "Sure?"
-rm -o -s PAKFILE
+rm -o -s 0:/os_chn.pak
+rm -o -s 0:/os_chn.pak.sha
 rm -o -s 0:/luma/payloads/Chinese_System_Installer.firm
 rm -o -s 0:/gm9/scripts/Chinese_System_Installer.gm9
 poweroff
@@ -626,8 +627,8 @@ end
 @Others_UE_Fonts_Change
 goto Others_JP_Fonts_Change
 
-@Others_UE_Delete_Apps
-goto Others_JP_Delete_Apps
+@Others_UE_Delete_Installer
+goto Others_JP_Delete_Installer
 
 @Others_UE_Delete_Backup
 goto Others_JP_Delete_Backup
