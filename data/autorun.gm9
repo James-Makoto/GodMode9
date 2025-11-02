@@ -14,7 +14,7 @@ if findnot $[PAKFILE] NULL
     set PREVIEW_MODE "V:/TextBox_Script/no_package.png"     #没有数据包提示
     echo "Resource Package not found!"
     poweroff
-elif find not $[PAKFILE].sha NULL
+elif findnot $[PAKFILE].sha NULL
     set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
     echo "Resource Package Corrupted!"
     poweroff
