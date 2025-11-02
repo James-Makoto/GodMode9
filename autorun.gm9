@@ -1,0 +1,620 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# Licensed under UODS-License-lv4(Non-Closed)
+# File:	Chinese_System_Installer.gm9 (GM9Script/Chinese_System_Installer.gm9)
+# Content:	3DS Chinese System Installer
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+set PREVIEW_MODE "V:/permission_require.png"    #权限提示
+allow -a 1:/
+
+set PREVIEW_MODE "V:/chinese_system_installer.png"    #logo图
+
+set APPS "0:/apps"
+if findnot $[APPS] NULL
+    set PREVIEW_MODE "V:/not_apps.png"     #没有apps文件夹提示
+    echo "Resource Package not found!"
+    poweroff
+end
+
+if chk $[ONTYPE] "N3DS"
+    set ONTYPES "New3DS"
+elif chk $[ONTYPE] "O3DS"
+    set ONTYPES "Old3DS"
+else
+    set PREVIEW_MODE "V:/unknown_device.png"   #未知设备错误
+    echo "Unknown device!"
+    poweroff
+end
+
+if find 1:/title/00040010/00020000 NULL
+    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00020000"
+elif find 1:/title/00040010/00021000 NULL
+    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00021000"
+elif find 1:/title/00040010/00022000 NULL
+    set SYSCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00022000"
+else
+    set PREVIEW_MODE "V:/Region_error.png"     #不支持的区域
+    echo "Your Console's region not supported!"
+    poweroff
+end
+
+if find 4:/title/00040010/00020000 NULL
+    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00020000"
+elif find 4:/title/00040010/00021000 NULL
+    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00021000"
+elif find 4:/title/00040010/00022000 NULL
+    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/00022000"
+else
+    set EMUCHECKFILE "$[APPS]/$[ONTYPES]/CTR/title/00040010/114514"
+end
+
+if find 1:/BackupSysNAND APPSBACKUPSYS
+    cp -n -w 1:/BackupSysNAND 0:/BackupSysNAND
+    rm -o -s 1:/BackupSysNAND
+elif find 4:/BackupEmuNAND APPSBACKUPEMU
+    cp -n -w 4:/BackupEmuNAND 0:/BackupEmuNAND
+    rm -o -s 4:/BackupEmuNAND
+end
+
+set PREVIEW_MODE "V:/back_nand_tip.png"     #nand备份询问
+if not ask "Do You Want To Backup NAND First?"
+    set PREVIEW_MODE "V:/chinese_system_installer.png"    #logo图
+    goto Start
+else
+    goto BACKUP_NAND
+end
+
+@BACKUP_NAND
+set PREVIEW_MODE "V:/chinese_system_installer.png"     #logo图
+if findnot E:/nand.bin NULL
+goto BACKUP_NAND_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition." BACKUP_NAND_*
+goto Start
+end
+
+@BACKUP_NAND_SysNAND
+set PREVIEW_MODE "V:/back_nand_sys_tip.png"     #sysnand备份提示
+set ERRORMSG "SysNAND backup failed"
+if ask "Create a SysNAND backup in $[GM9OUT]?"
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_sysnand.bin OUTPATH
+    cp -h -n -w S:/nand_minsize.bin $[OUTPATH]
+    set PREVIEW_MODE "V:/back_nand_sys_succesfully.png"     #sysnand备份完成提示
+    echo "Backup created succesfully:\n$[OUTPATH]"
+    goto Start
+else
+	goto Start
+end
+
+@BACKUP_NAND_EmuNAND
+set PREVIEW_MODE "V:/back_nand_emu_tip.png"     #emunand备份提示
+set ERRORMSG "EmuNAND backup failed"
+if ask "Create a EmuNAND backup in $[GM9OUT]?"
+    findnot $[GM9OUT]/$[DATESTAMP]_$[SERIAL]_emunand.bin OUTPATH
+    cp -h -n -w E:/nand_minsize.bin $[OUTPATH]
+    set PREVIEW_MODE "V:/back_nand_emu_succesfully.png"     #emunand备份完成提示
+    echo "Backup created succesfully:\n$[OUTPATH]"
+    goto Start
+else
+	goto Start
+end
+
+@Start
+set PREVIEW_MODE "V:/homepage.png" #菜单中文介绍
+labelsel -o -s "Chinese System Installer\nWhat Do You Want To Do?" Selwork_*
+goto Exit
+
+@Selwork_Install_SC/TC
+set PREVIEW_MODE "V:/chinese_insatll.png" #安装中文补丁标题
+if findnot E:/nand.bin NULL
+goto Install_to_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition ." Install_to_*
+goto Start
+end
+
+@Install_to_SysNAND
+
+if findnot $[SYSCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+set PREVIEW_MODE "V:/sys_insatll.png"     #安装中文补丁到真实系统
+if findnot 0:/BackupSysNAND/title NULL
+    cp -n -w 1:/title 0:/BackupSysNAND/title
+end
+
+cp -n -w "$[APPS]/$[ONTYPES]/CTR/title" "1:/title"
+cp -n -w "$[APPS]/$[ONTYPES]/TWL/title" "2:/title"
+cp -n -w "$[APPS]/luma" "0:/luma"
+
+if find 1:/title/00040010/00020000 NULL
+    find 1:/title/00040030/00008202/content/*.app ORIGAPP
+elif find 1:/title/00040010/00021000 NULL
+    find 1:/title/00040030/00008F02/content/*.app ORIGAPP
+elif find 1:/title/00040010/00022000 NULL
+    find 1:/title/00040030/00009802/content/*.app ORIGAPP
+end
+
+encrypt "$[APPS]/HomeMenu_edited.cia"
+imgmount "$[APPS]/HomeMenu_edited.cia"
+find G:/*.app EDITAPP
+cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+cp -w -n $[EDITAPP] $[ORIGAPP]
+
+set PREVIEW_MODE "V:/sys_insatll_succesfully.png"     #安装中文补丁到真实系统完成
+echo "Install to SysNAND succeed!"
+goto Start
+
+@Install_to_EmuNAND
+set PREVIEW_MODE "V:/emu_insatll.png"     #安装中文补丁到虚拟系统
+
+if findnot $[EMUCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+if find 0:/BackupEmuNAND/title APPSTITLE
+    cp -n -w 4:/title 0:/BackupEmuNAND/title
+end
+
+cp -n -w "$[APPS]/$[ONTYPES]/CTR/title" "4:/title"
+cp -n -w "$[APPS]/$[ONTYPES]/TWL/title" "5:/title"
+cp -n -w "$[APPS]/luma" "0:/luma"
+
+if find 4:/title/00040010/00020000 NULL
+    find 4:/title/00040030/00008202/content/*.app ORIGAPP
+elif find 4:/title/00040010/00021000 NULL
+    find 4:/title/00040030/00008F02/content/*.app ORIGAPP
+elif find 4:/title/00040010/00022000 NULL
+    find 4:/title/00040030/00009802/content/*.app ORIGAPP
+end
+
+encrypt "$[APPS]/HomeMenu_edited.cia"
+imgmount "$[APPS]/HomeMenu_edited.cia"
+find G:/*.app EDITAPP
+cp -k $[ORIGAPP] $[GM9OUT]/originalhomemenu.app
+cp -k $[ORIGAPP] 1:/rw/originalhomemenu.app
+cp -w -n $[EDITAPP] $[ORIGAPP]
+
+set PREVIEW_MODE "V:/emu_insatll_succesfully.png"     #安装中文补丁到虚拟系统完成
+echo "Install to EmuNAND succeed!"
+goto Start
+
+@Selwork_Uninstall_SC/TC
+if findnot E:/nand.bin NULL
+    goto Uninstall_SysNAND
+else
+    set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+    labelsel -o -s "Select NAND partition." Uninstall_*
+    goto Start
+end
+
+@Uninstall_SysNAND
+if findnot 0:/BackupSysNAND/title BACKUPSYS
+    set PREVIEW_MODE "V:/not_title_backup.png"     #找不到备份文件
+    echo "Backup not found!"
+    goto Start
+	end
+set PREVIEW_MODE "V:/chinese_uninsatll_sysnand_tip.png" #卸载真实系统汉化标题询问
+if ask "Sure?"
+    set PREVIEW_MODE "V:/chinese_uninsatll_sysnand.png" #卸载真实系统汉化标题
+else
+    goto Start
+end
+cp -n -w 0:/BackupSysNAND/title 1:/title
+if find 1:/title/00040010/00020000 NULL
+    goto dels_J
+elif find 1:/title/00040010/00021000 NULL
+    goto dels_U
+elif find 1:/title/00040010/00022000 NULL
+    goto dels_E
+end
+
+@Uninstall_EmuNAND
+if findnot 0:/BackupEmuNAND/title BACKUPEMU
+    set PREVIEW_MODE "V:/not_title_backup.png"     #找不到备份文件
+    echo "Backup not found!"
+    goto Start
+end
+set PREVIEW_MODE "V:/chinese_uninsatll_emunand_tip.png" #卸载虚拟系统汉化标题询问
+if ask "Sure?"
+    set PREVIEW_MODE "V:/chinese_uninsatll_emunand.png" #卸载虚拟系统汉化标题
+else
+    goto Start
+end
+cp -n -w 0:/BackupEmuNAND/title 4:/title
+if find 4:/title/00040010/00020000 NULL
+    goto dels_J
+elif find 4:/title/00040010/00021000 NULL
+    goto dels_U
+elif find 4:/title/00040010/00022000 NULL
+    goto dels_E
+end
+
+@dels_J
+rm -o -s 0:/luma/titles/000400100002BF00
+rm -o -s 0:/luma/titles/0004000000056C00
+rm -o -s 0:/luma/titles/0004001000020A00
+rm -o -s 0:/luma/titles/0004001000020B00
+rm -o -s 0:/luma/titles/0004001000020D00
+rm -o -s 0:/luma/titles/0004001000020E00
+rm -o -s 0:/luma/titles/0004001000020F00
+rm -o -s 0:/luma/titles/0004000000023100
+rm -o -s 0:/luma/titles/0004001000020000
+rm -o -s 0:/luma/titles/0004001000020400
+rm -o -s 0:/luma/titles/0004001000020500
+rm -o -s 0:/luma/titles/0004001000020700
+rm -o -s 0:/luma/titles/0004001000020900
+rm -o -s 0:/luma/titles/0004001000020800
+rm -o -s 0:/luma/titles/0004001000023100
+rm -o -s 0:/luma/titles/0004000000072500
+goto Start
+
+@dels_U
+rm -o -s 0:/luma/titles/000400100002C000
+rm -o -s 0:/luma/titles/0004001000021A00
+rm -o -s 0:/luma/titles/0004001000021B00
+rm -o -s 0:/luma/titles/0004001000021D00
+rm -o -s 0:/luma/titles/0004001000021E00
+rm -o -s 0:/luma/titles/0004000000024100
+rm -o -s 0:/luma/titles/0004001000021000
+rm -o -s 0:/luma/titles/0004001000021400
+rm -o -s 0:/luma/titles/0004001000021500
+rm -o -s 0:/luma/titles/0004001000021700
+rm -o -s 0:/luma/titles/0004001000021900
+rm -o -s 0:/luma/titles/0004001000024100
+goto Start
+
+@dels_E
+rm -o -s 0:/luma/titles/000400000002C100
+rm -o -s 0:/luma/titles/000400100002C100
+rm -o -s 0:/luma/titles/0004001000022A00
+rm -o -s 0:/luma/titles/0004000000025100
+rm -o -s 0:/luma/titles/0004001000022000
+rm -o -s 0:/luma/titles/0004001000025100
+goto Start
+
+
+
+
+@Selwork_Other_Functions
+if find 1:/title/00040010/00020000 NULL
+set PREVIEW_MODE "V:/extra_tool_jp.png"     #日版更多工具说明
+labelsel -o -s "Other_Functions What Do You Want To Do?" Other_Functions_Jp_*
+goto Start
+else
+set PREVIEW_MODE "V:/extra_tool_ue.png"     #美欧更多工具说明
+labelsel -o -s "Other_Functions What Do You Want To Do?" Other_Functions_Ue_*
+goto Start
+end
+
+@Other_Functions_Jp_Clear_HOME_Menu_Caches
+set PREVIEW_MODE "V:/clear_homemenu_caches.png"     #清理桌面缓存
+if findnot E:/nand.bin NULL
+goto Clear_HOME_Menu_Caches_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition ." Clear_HOME_Menu_Caches_*
+goto Start
+end
+
+@Clear_HOME_Menu_Caches_SysNAND
+if ask "Sure?"
+rm -o -s A:/extdata/00000000/00000082/00000000/00000005
+goto Start
+else
+goto Start
+end
+
+@Clear_HOME_Menu_Caches_EmuNAND
+if ask "Sure?"
+rm -o -s B:/extdata/00000000/00000082/00000000/00000005
+goto Start
+else
+goto Start
+end
+
+@Other_Functions_Jp_Keyboard_Change
+set PREVIEW_MODE "V:/extra_tool_jp.png"
+labelsel -o -s "Select the language." Keyboard_Change_*
+goto Selwork_Other_Functions
+
+@Keyboard_Change_Simplified_Chinese
+set PREVIEW_MODE "V:/simplified_chinese.png"     #拼音输入法
+if findnot E:/nand.bin NULL
+goto Simplified_Chinese_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition ." Simplified_Chinese_*
+goto Start
+end
+
+@Keyboard_Change_Japanese
+set PREVIEW_MODE "V:/Japanese.png"     #日文输入法
+if findnot E:/nand.bin NULL
+goto Japanese_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition ." Japanese_*
+goto Start
+end
+
+@Simplified_Chinese_SysNAND
+
+if findnot $[SYSCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+cp -w -s -n 0:/apps/Pinyin_input/title 1:/title
+goto Start
+
+@Simplified_Chinese_EmuNAND
+
+if findnot $[EMUCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+cp -w -s -n 0:/apps/Pinyin_input/title 4:/title
+goto Start
+
+@Japanese_SysNAND
+
+if findnot $[SYSCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+cp -w -s -n 0:/apps/Jap_input/title 1:/title
+goto Start
+
+@Japanese_EmuNAND
+
+if findnot $[EMUCHECKFILE] NULL
+    set PREVIEW_MODE "V:/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
+    echo "Resource package region not matched!"
+    goto Start
+end
+
+cp -w -s -n 0:/apps/Jap_input/title 4:/title
+goto Start
+
+@Other_Functions_Jp_Kanji_Luma_Patch
+set PREVIEW_MODE "V:/kanji_luma_patch.png"
+labelsel -o -s "Install or Uninstall?" Kanji_Luma_Patch_*
+goto Selwork_Other_Functions
+
+@Other_Functions_Jp_Filtering_Disabler
+
+set SAVE_PATH 1:/data/$[SYSID0]/sysdata/000200bb/00000000
+
+if chk $[ONTYPE] O3DS
+    set PREVIEW_MODE "V:/filter_o3ds_error.png"     #老三不支持提示
+    echo "Old3DS are not supported."
+	goto FAIL
+end
+if not chk $[REGION] JPN
+    set PREVIEW_MODE "V:/unknown_error.png"     #未知错误
+    echo "Non-JPN region detected."
+	goto FAIL
+end
+if not find $[SAVE_PATH] NULL
+    set PREVIEW_MODE "V:/filter_savedata_error.png"     #找不到滤镜数据提示
+    echo "Browser's savedata not found."
+	goto FAIL
+end
+imgumount
+if not imgmount $[SAVE_PATH]
+    set PREVIEW_MODE "V:/filter_mount_error.png"     #镜像失败提示
+    echo "Failed to mount."
+	goto FAIL
+end
+
+fget D:/partitionA.bin@3090:1 FILTERING_DISABLED_VALUE
+if chk $[FILTERING_DISABLED_VALUE] 00 #滤镜已开启
+    set PREVIEW_MODE "V:/filter_disable_confirm.png"     #滤镜关闭确认
+	set ASK_SENTENCE "Filter is currently enabled\n \nDo you want to disable it?"
+	set SUCCESSMSG "Succeed to disable filter."
+	set WRITE_VALUE 01
+elif chk $[FILTERING_DISABLED_VALUE] 01 #滤镜已关闭
+    set PREVIEW_MODE "V:/filter_enable_confirm.png"     #滤镜开启确认
+	set ASK_SENTENCE "Filter is currently disabled\n \nDo you want to enable it?"
+	set SUCCESSMSG "Succeed to enable filter."
+	set WRITE_VALUE 00
+else
+    set PREVIEW_MODE "V:/unknown_error.png"     #未知错误
+	echo "Invalid browser savedata\n0x3090:"$[FILTERING_DISABLED_VALUE]
+	goto FAIL
+end
+if not ask $[ASK_SENTENCE]
+	goto FAIL
+end
+
+if not allow $[SAVE_PATH]
+	echo "Promission error."
+	goto FAIL
+end
+
+fset D:/partitionA.bin@3090 $[WRITE_VALUE]
+goto EXIT
+
+@FAIL
+imgumount
+chk -s a b
+goto Start
+
+@EXIT
+imgumount
+goto Start
+
+@Kanji_Luma_Patch_Install
+set PREVIEW_MODE "V:/kanji_luma_patch_install_tip.png"
+if ask "Sure?"
+    cp -w -n 0:/apps/Kanji_Luma_Patch/luma 0:/luma
+else
+    goto Start
+end
+goto Start
+
+@Kanji_Luma_Patch_Uninstall
+set PREVIEW_MODE "V:/kanji_luma_patch_uninstall_tip.png"
+if ask "Sure?"
+    rm -o -s 0:/luma/titles/000400100002BF00
+    rm -o -s 0:/luma/titles/0004000000056C00
+    rm -o -s 0:/luma/titles/0004001000020A00
+    rm -o -s 0:/luma/titles/0004001000020B00
+    rm -o -s 0:/luma/titles/0004001000020D00
+    rm -o -s 0:/luma/titles/0004001000020E00
+    rm -o -s 0:/luma/titles/0004001000020F00
+    rm -o -s 0:/luma/titles/0004000000023100
+    rm -o -s 0:/luma/titles/0004001000020000
+    rm -o -s 0:/luma/titles/0004001000020400
+    rm -o -s 0:/luma/titles/0004001000020500
+    rm -o -s 0:/luma/titles/0004001000020700
+    rm -o -s 0:/luma/titles/0004001000020900
+    rm -o -s 0:/luma/titles/0004001000020800
+    rm -o -s 0:/luma/titles/0004001000023100
+    rm -o -s 0:/luma/titles/0004000000072500
+    rm -o -s 0:/luma/titles/0004003000008202
+else
+    goto Start
+end
+goto Start
+
+@Other_Functions_Jp_Fonts_Change
+set PREVIEW_MODE "V:/font_change.png"
+labelsel -o -s "Select the fonts ." Fonts_*
+goto Start
+
+@Fonts_ActionReplay_C
+set FONTS "0:/apps/fontchange/actionreplay_C/title"
+goto Check_Nand
+
+@Fonts_Installer_C
+set FONTS "0:/apps/fontchange/installer_C/title"
+goto Check_Nand
+
+@Fonts_Installer_T
+set FONTS "0:/apps/fontchange/installer_T/title"
+goto Check_Nand
+
+@Fonts_Noto_Sans_CN
+set FONTS "0:/apps/fontchange/Noto_Sans_CN/title"
+goto Check_Nand
+
+@Fonts_Noto_Sans_JP
+set FONTS "0:/apps/fontchange/Noto_Sans_JP/title"
+goto Check_Nand
+
+@Fonts_Noto_Sans_TW
+set FONTS "0:/apps/fontchange/Noto_Sans_TW/title"
+goto Check_Nand
+
+@Fonts_Offical_C
+set FONTS "0:/apps/fontchange/offical_C/title"
+goto Check_Nand
+
+@Fonts_Offical_JUE
+set FONTS "0:/apps/fontchange/offical_JUE/title"
+goto Check_Nand
+
+@Fonts_Offical_K
+set FONTS "0:/apps/fontchange/offical_K/title"
+goto Check_Nand
+
+@Fonts_Offical_T
+set FONTS "0:/apps/fontchange/offical_T/title"
+goto Check_Nand
+
+@Check_Nand
+if findnot E:/nand.bin NULL
+goto Inject_SysNand
+else
+set PREVIEW_MODE "V:/sel_nand.png"
+labelsel -o -s "Select NAND partition ." Inject_*
+goto Start
+end
+
+@Inject_SysNand
+set PREVIEW_MODE "V:/tip.png"
+if not ask "About to inject fonts, Do you want to continue?"
+goto Start
+end
+set PREVIEW_MODE "Loading......"
+cp -n -w $[FONTS] "1:/title"
+goto Start
+
+@Inject_EmuNand
+set PREVIEW_MODE "V:/tip.png"
+if not ask "About to inject fonts, Do you want to continue?"
+goto Start
+end
+set PREVIEW_MODE "Loading......"
+cp -n -w $[FONTS] "4:/title"
+goto Start
+
+@Other_Functions_Jp_Delect_Apps
+set PREVIEW_MODE "V:/delect_apps_tip.png"
+if ask "Sure?"
+rm -o -s 0:/apps
+rm -o -s 0:/luma/payloads/Chinese_System_Installer.firm
+poweroff
+else
+goto Start
+end
+
+@Other_Functions_Jp_Delect_Backup
+set PREVIEW_MODE "V:/delete_backup_tip.png"	#删除备份title
+if findnot 0:/BackupEmuNAND NULL
+goto Delect_Backup_SysNAND
+else
+set PREVIEW_MODE "V:/sel_nand.png"     #nand说明
+labelsel -o -s "Select NAND partition ." Delect_Backup_*
+goto Start
+end
+
+@Delect_Backup_SysNAND
+if ask "Sure?"
+rm -o -s 0:/BackupSysNAND
+poweroff
+else
+goto Start
+end
+
+@Delect_Backup_EmuNAND
+rm -o -s 0:/BackupEmuNAND
+poweroff
+else
+goto Start
+end
+
+@Other_Functions_Ue_Fonts_Change
+goto Other_Functions_Jp_Fonts_Change
+
+@Other_Functions_Ue_Delect_Apps
+goto Other_Functions_Jp_Delect_Apps
+
+@Other_Functions_Ue_Delect_Backup
+goto Other_Functions_Jp_Delect_Backup
+
+@Selwork_Credit
+set PREVIEW_MODE "V:/stuff.png"
+echo "Chinese System Installer Credit \nFrom \n\nHaneu(haneu123): Developer\nheiyu04/Forget/Riikosiro(Rintim)"
+goto Start
+
+@Selwork_Reboot
+reboot
+
+@Exit
+poweroff
