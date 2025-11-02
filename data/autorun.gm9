@@ -20,8 +20,8 @@ elif findnot $[PAKFILE].sha NULL
     poweroff
 end
 
+set PREVIEW_MODE "V:/TextBox_Script/check_sha.png"     #数据包校检提示
 if ask "Should check SHA file?"
-    set PREVIEW_MODE "V:/TextBox_Script/check_sha.png"     #数据包校检提示
     if not sha $[PAKFILE] $[PAKFILE].sha
         set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
         echo "Resource Package Corrupted!"
