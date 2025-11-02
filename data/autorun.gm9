@@ -18,13 +18,15 @@ elif find not $[PAKFILE].sha NULL
     set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
     echo "Resource Package Corrupted!"
     poweroff
-elif not sha $[PAKFILE] $[PAKFILE].sha
+end
+
+if not sha $[PAKFILE] $[PAKFILE].sha
     set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
     echo "Resource Package Corrupted!"
     poweroff
-else
-    imgmount $[PAKFILE]
 end
+
+imgmount $[PAKFILE]
 
 if chk $[ONTYPE] "N3DS"
     set ONTYPES "New3DS"
