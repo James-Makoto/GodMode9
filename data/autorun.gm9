@@ -26,6 +26,7 @@ if ask "Should check SHA file?"
         set PREVIEW_MODE "V:/TextBox_Script/package_corrupt.png"     #数据包校检失败提示
         echo "Resource Package Corrupted!"
         poweroff
+    end
 end
 
 imgmount $[PAKFILE]
@@ -136,7 +137,7 @@ end
 if findnot $[SYSCHECKFILE] NULL
     set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示SYS
     echo "Resource package region not matched!"
-    goto Start
+    poweroff
 end
 
 set PREVIEW_MODE "G:/TextBox_Package/sys_install.png"     #安装中文补丁到真实系统
@@ -174,7 +175,7 @@ set PREVIEW_MODE "G:/TextBox_Package/emu_install.png"     #安装中文补丁到
 if findnot $[EMUCHECKFILE] NULL
     set PREVIEW_MODE "G:/TextBox_Package/resource_region_error.png"     #资源包与设备区域不匹配提示EMU
     echo "Resource package region not matched!"
-    goto Start
+    poweroff
 end
 
 if find 0:/BackupEmuNAND/title APPSTITLE
