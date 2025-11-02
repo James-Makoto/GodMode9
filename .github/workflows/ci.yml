@@ -2,11 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ "main",]
+    branches: [ "msater",]
     tags:  ["*"]
   pull_request:
     types: ["opened"]
-    branches: ["main"]
+    branches: ["msater"]
   workflow_dispatch:
  
 jobs:  
