@@ -264,7 +264,7 @@ elif find 4:/title/00040010/00022000 NULL
     find 4:/title/00040030/00009802/content/*.app ORIGAPP
 end
 
-cp -n -w "G:/Resources/HomeMenu_edited.cia" "0:/"
+cp -n -w "G:/Resources/HomeMenu_edited.cia" "0:/HomeMenu_edited.cia"
 encrypt "0:/HomeMenu_edited.cia"
 imgmount "0:/HomeMenu_edited.cia"
 find G:/*.app EDITAPP
