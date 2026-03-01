@@ -302,6 +302,7 @@ else
     goto Start
 end
 cp -n -w 0:/BackupSysNAND/title 1:/title
+cp -n -w G:/Resources/Uninstall_TWL_Files/title 2:/title
 if find 1:/title/00040010/00020000 NULL
     goto dels_J
 elif find 1:/title/00040010/00021000 NULL
@@ -323,6 +324,7 @@ else
     goto Start
 end
 cp -n -w 0:/BackupEmuNAND/title 4:/title
+cp -n -w G:/Resources/Uninstall_TWL_Files/title 5:/title
 if find 4:/title/00040010/00020000 NULL
     goto dels_J
 elif find 4:/title/00040010/00021000 NULL
