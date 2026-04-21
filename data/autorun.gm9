@@ -522,15 +522,11 @@ if chk $[FILTERING_DISABLED_VALUE] 00 #滤镜已开启
 	set ASK_SENTENCE "Filter is currently enabled\n \nDo you want to disable it?"
 	set SUCCESSMSG "Succeed to disable filter."
 	set WRITE_FILTER_VALUE 01
-	set WRITE_PASS_FIRST_SETUP_VALUE 01
-	set WRITE_KEYBOARD_ERROR_AVOID_VALUE 01
 elif chk $[FILTERING_DISABLED_VALUE] 01 #滤镜已关闭
     set PREVIEW_MODE "V:/TextBox_Script/filter_enable_confirm.png"     #滤镜开启确认
 	set ASK_SENTENCE "Filter is currently disabled\n \nDo you want to enable it?"
 	set SUCCESSMSG "Succeed to enable filter."
 	set WRITE_FILTER_VALUE 00
-	set WRITE_PASS_FIRST_SETUP_VALUE 01
-	set WRITE_KEYBOARD_ERROR_AVOID_VALUE 01
 else
     set PREVIEW_MODE "V:/TextBox_Script/unknown_error.png"     #未知错误
 	echo "Invalid browser savedata\n0x3090:"$[FILTERING_DISABLED_VALUE]
@@ -546,8 +542,8 @@ if not allow $[SAVE_PATH]
 end
 
 fset D:/partitionA.bin@3090 $[WRITE_FILTER_VALUE]
-fset D:/partitionA.bin@3060 $[WRITE_PASS_FIRST_SETUP_VALUE]
-fset D:/partitionA.bin@30D5 $[WRITE_KEYBOARD_ERROR_AVOID_VALUE]
+fset D:/partitionA.bin@3060 01
+fset D:/partitionA.bin@30D5 01
 goto EXIT
 
 @FAIL
