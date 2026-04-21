@@ -542,8 +542,8 @@ if not allow $[SAVE_PATH]
 end
 
 fset D:/partitionA.bin@3090 $[WRITE_FILTER_VALUE]
-fset D:/partitionA.bin@3060 01
-fset D:/partitionA.bin@30D5 01
+fset D:/partitionA.bin@3060 01     #关闭浏览器的初次设定
+fset D:/partitionA.bin@30D5 01     #回避浏览器键盘报错
 goto EXIT
 
 @FAIL
